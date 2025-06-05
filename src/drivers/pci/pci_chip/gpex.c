@@ -18,9 +18,12 @@
 #include <drivers/pci/pci_chip/pci_utils.h>
 #include <hal/reg.h>
 #include <util/log.h>
+#include <kernel/dt/dt.h>
 
-#define GPEX_MMIO_BASE 0x4010000000
-#define GPEX_IRQ_BASE  35
+extern struct pci_info pci;
+
+#define GPEX_MMIO_BASE (pci.base_addr)
+#define GPEX_IRQ_BASE  (pci.irq_base)
 #define GPEX_IRQ_NUM   4 /* GPEX_IRQ_BASE + 0, ... GPEX_IRQ_BASE + 3 */
 
 #define PCI_REG_ADDR(bus, physdev, fun, where) \
@@ -125,4 +128,42 @@ unsigned int pci_irq_number(struct pci_slot_dev *dev) {
 	return (unsigned int) (GPEX_IRQ_BASE + (dev->irq_pin + 1) % GPEX_IRQ_NUM);
 }
 
-PERIPH_MEMORY_DEFINE(gpex_mmio, GPEX_MMIO_BASE, 0x2EFF0000);
+PERIPH_MEMORY_DEFINE(gpex_mmio, 0, 0);
+
+int gpex_pci_dt_config_init(void){
+    struct device_node *np;
+    uintptr_t gpex_base;
+    uintptr_t gpex_len;
+
+    np=of_find_compatible_node(NULL, NULL,"pci-host-ecam-generic");
+    if(!np){
+        return -1;
+    }
+    if(of_property_read_reg(np, 0, &gpex_base, &gpex_len)){
+        return -1;
+    }
+    pci.base_addr = gpex_base;
+
+    gpex_mmio_mem.start = gpex_base;
+	gpex_mmio_mem.len = 0x2EFF0000;
+
+
+    struct of_phandle_args irq;
+    int irq_index = 0;
+    if(of_irq_parse_one(np, irq_index, &irq) == 0){
+        pci.irq_base=irq.args[1];
+    }else{
+		return -1;
+	}
+    
+	short bus_num = 0;
+    uint32_t bus_range[2];
+	of_property_read_u32_array(np, "bus-range", bus_range, 2);
+	bus_num=bus_range[1]-bus_range[0]+1;
+    pci.bus_num=bus_num;
+    return 0;
+}
+
+DT_CONFIG_INIT("gpex",gpex_pci_dt_config_init);
+
+

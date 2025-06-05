@@ -23,8 +23,10 @@
 #include <lib/libds/dlist.h>
 #include <util/log.h>
 
-#define PCI_BUS_N_TO_SCAN OPTION_GET(NUMBER, bus_n_to_scan)
-#define PCI_IRQ_BASE      OPTION_GET(NUMBER, irq_base)
+struct pci_info pci;
+
+#define PCI_BUS_N_TO_SCAN (pci.bus_num)
+#define PCI_IRQ_BASE (pci.irq_base)
 
 EMBOX_UNIT_INIT(pci_init);
 

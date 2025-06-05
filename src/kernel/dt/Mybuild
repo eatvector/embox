@@ -1,0 +1,17 @@
+package embox.kernel
+
+module dt{
+	@IncludeExport(path="kernel/dt")
+	source "dt.h"
+
+	source "dt.c"
+     
+	depends embox.mem.sysmalloc_api
+	
+	@NoRuntime depends embox.mem.objalloc
+	@NoRuntime depends embox.lib.libfdt
+	@NoRuntime depends embox.lib.libds
+}
+
+
+

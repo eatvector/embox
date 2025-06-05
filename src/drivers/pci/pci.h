@@ -181,4 +181,10 @@ struct msix_entry {
 #define for_each_pci_msi_entry(entry, dev) \
 	dlist_foreach_entry(entry, &dev->msi_list, list)
 
+struct pci_info{
+	 uintptr_t base_addr;
+	 short irq_base;
+	 short bus_num;
+};
+
 #endif /* PCI_H_ */

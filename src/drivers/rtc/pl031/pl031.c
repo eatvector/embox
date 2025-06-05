@@ -12,6 +12,7 @@
 
 #include <hal/reg.h>
 #include <kernel/irq.h>
+#include <kernel/dt/dt.h>
 
 #include <drivers/rtc.h>
 
@@ -20,8 +21,13 @@
 
 EMBOX_UNIT_INIT(pl031_init);
 
-#define PL031_BASE      OPTION_GET(NUMBER, base_addr)
-#define PL031_IRQ       OPTION_GET(NUMBER, irq_nr)
+static struct rtc_info {
+      uintptr_t base_addr;
+	  short irq_nr;
+}rtc;
+
+#define PL031_BASE      (rtc.base_addr)
+#define PL031_IRQ        (rtc.irq_nr)
 #define PL031_TARGET_HZ 1
 
 #define PL031_DR   (PL031_BASE + 0x00) /* Data register */
@@ -104,4 +110,33 @@ static int pl031_init(void) {
 
 STATIC_IRQ_ATTACH(PL031_IRQ, pl031_irq_handler, &pl031_rtc_device;);
 
-PERIPH_MEMORY_DEFINE(pl031, PL031_BASE, 0x20);
+PERIPH_MEMORY_DEFINE(pl031, 0, 0);
+
+int rtc_pl031_dt_config_init(void){
+    struct device_node *np;
+    uintptr_t pl031_base;
+    uintptr_t pl031_len;
+
+    np=of_find_compatible_node(NULL, NULL,"arm,pl031");
+    if(!np){
+        return -1;
+    }
+    if(of_property_read_reg(np, 0, &pl031_base, &pl031_len)){
+        return -1;
+    }
+     rtc.base_addr = pl031_base;
+
+     pl031_mem.start = pl031_base;
+	 pl031_mem.len = 0x20;
+
+    struct of_phandle_args irq;
+    int irq_index = 0;
+    if(of_irq_parse_one(np, irq_index, &irq) == 0){
+        rtc.irq_nr=irq.args[1];
+    }
+     return 0;
+}
+
+DT_CONFIG_INIT("pl031",rtc_pl031_dt_config_init);
+
+

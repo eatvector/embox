@@ -1,0 +1,24 @@
+package embox.lib
+
+module libfdt {
+    source "fdt.c"
+    source "fdt_ro.c"
+    source "fdt_rw.c"
+    source "fdt_sw.c"
+    source "fdt_wip.c"
+    source "fdt_strerror.c"
+    source "fdt_empty_tree.c"
+    source "fdt_overlay.c"
+    source "fdt_check.c"
+    source "fdt_addresses.c"
+
+    @IncludeExport(path="lib/libfdt", target_name="fdt.h")
+    source "fdt.h"
+    @IncludeExport(path="lib/libfdt", target_name="libfdt.h")
+    source "libfdt.h"
+
+    @IncludeExport(path="lib/libfdt", target_name="libfdt_env.h")
+    source "libfdt_env.h"
+    @IncludeExport(path="lib/libfdt", target_name="libfdt_internal.h")
+    source "libfdt_internal.h"
+}

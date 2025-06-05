@@ -20,9 +20,9 @@ struct periph_memory_desc {
 #define PERIPH_MAX_SEGMENTS 64
 
 #define PERIPH_MEMORY_DEFINE(dev_name, mem_base, mem_len) \
-		static const struct periph_memory_desc dev_name ## _mem = { \
+		static struct periph_memory_desc dev_name ## _mem = { \
 				.start = mem_base, .len = mem_len}; \
-	ARRAY_SPREAD_DECLARE(const struct periph_memory_desc *, \
+	ARRAY_SPREAD_DECLARE(struct periph_memory_desc *, \
 			__periph_mem_registry);	\
 	ARRAY_SPREAD_ADD(__periph_mem_registry, \
 			&dev_name ## _mem)

@@ -15,8 +15,8 @@
 #include <kernel/irq.h>
 #include <kernel/time/clock_source.h>
 #include <kernel/time/time_device.h>
+#include <kernel/dt/dt.h>
 
-#define IRQ_NUM OPTION_GET(NUMBER, irq_num)
 
 static irq_return_t phy_timer_handler(unsigned int irq_nr, void *dev_id) {
 	uint32_t freq;
@@ -42,7 +42,9 @@ static int phy_timer_set_periodic(struct clock_source *cs) {
 static struct time_event_device phy_timer_event_device = {
     .set_periodic = phy_timer_set_periodic,
     .name = "armv8_phy_timer",
-    .irq_nr = IRQ_NUM};
+};
+#define IRQ_NUM (phy_timer_event_device.irq_nr)
+
 
 static int phy_timer_init(struct clock_source *cs) {
 	return irq_attach(IRQ_NUM, phy_timer_handler, 0, cs, "armv8_phy_timer");
@@ -50,3 +52,21 @@ static int phy_timer_init(struct clock_source *cs) {
 
 CLOCK_SOURCE_DEF(armv8_phy_timer, phy_timer_init, NULL, &phy_timer_event_device,
     NULL);
+
+int armv8_phy_timer_dt_config_init(void){
+    struct device_node *np;
+    
+    np=of_find_compatible_node(NULL, NULL,"arm,armv8-timer");
+    if(!np){
+        return -1;
+    }
+   
+    struct of_phandle_args irq;
+    int irq_index = 0;
+    if(of_irq_parse_one(np, irq_index, &irq) == 0){
+       phy_timer_event_device.irq_nr=irq.args[1];
+    }
+     return 0;
+}
+
+DT_CONFIG_INIT("pl011_ttys0",armv8_phy_timer_dt_config_init);		

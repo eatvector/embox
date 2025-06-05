@@ -1,0 +1,7 @@
+package embox.dtb
+
+module dtb {
+	option string section=".rodata.embox.dtb"
+	source "dtb.S"
+	source "dtd.lds.S"
+}

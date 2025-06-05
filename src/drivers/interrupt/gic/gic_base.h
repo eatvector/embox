@@ -10,16 +10,22 @@
 
 #include <framework/mod/options.h>
 
+struct gic_info{
+    uintptr_t gicd_base;
+    uintptr_t gicr_base;
+    uintptr_t gicc_base;
+}gic;
+
 #if OPTION_DEFINED(NUMBER, gicd_base)
-#define GICD_BASE OPTION_GET(NUMBER, gicd_base)
+#define GICD_BASE (gic.gicd_base)
 #endif
 
 #if OPTION_DEFINED(NUMBER, gicr_base)
-#define GICR_BASE OPTION_GET(NUMBER, gicr_base)
+#define GICR_BASE (gic.gicr_base)
 #endif
 
 #if OPTION_DEFINED(NUMBER, gicc_base)
-#define GICC_BASE OPTION_GET(NUMBER, gicc_base)
+#define GICC_BASE (gic.gicc_base)
 #endif
 
 #endif /* DRIVERS_INTERRUPT_GIC_GIC_UTIL_H_ */

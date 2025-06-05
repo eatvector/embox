@@ -18,6 +18,7 @@
 #include <kernel/klog.h>
 #include <kernel/printk.h>
 #include <util/log.h>
+#include <kernel/dt/dt.h>
 
 static void kernel_init(void);
 static int init(void);
@@ -48,6 +49,8 @@ void kernel_start(void) {
  * further memory configuration, initialization of drivers, devices.
  */
 static void kernel_init(void) {
+    dt_init();
+
 	platform_init();
 
 	ipl_init();

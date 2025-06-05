@@ -1,0 +1,1 @@
+dtc -I dts -O dtb -o aarch64-qemu.dtb aarch64-qemu.dts

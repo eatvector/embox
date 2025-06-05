@@ -1,0 +1,58 @@
+/dts-v1/;
+
+/ {
+    compatible = "arm,virt";
+
+    #address-cells = <2>;
+	#size-cells = <2>;
+     
+    timer {
+        compatible = "arm,armv8-timer";
+        interrupt-parent = <&gic>;
+        interrupts = <1 30 4 15>;
+    };
+
+    soc {
+        #address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		interrupt-parent = <&gic>;
+
+        uart@9000000 {
+            compatible = "arm,pl011";
+            reg = <0x00 0x9000000 0x00 0x1000>;
+            interrupts = <0 33 4 0>;
+        };  
+
+        gic: interrupt-controller@8000000 {
+            compatible = "arm,gic-v3";
+            interrupt-controller;
+            reg = <0x00 0x8000000 0x00 0x010000>,    /* GICD */
+			      <0x00 0x80a0000 0x00 0xf60000>;    /* GICR */
+            #interrupt-cells = <4>;
+        };
+
+        rtc@9010000 {
+            compatible = "arm,pl031";
+            reg = <0x00 0x09010000 0x00 0x1000>;
+            interrupts = <0 34 4 0>;
+        };
+
+        pcie: pcie@4010000000 {
+            compatible = "pci-host-ecam-generic";
+            device_type = "pci";
+            #address-cells = <3>;
+            #size-cells = <2>;
+            reg = <0x40 0x10000000 0x00 0x2EFF0000>; 
+            
+            ranges = <0x1000000 0x00 0x00  0x00 0x3eff0000  0x00 0x10000 
+                      0x2000000 0x00 0x10000000  0x00 0x10000000  0x00 0x2eff0000
+				      0x3000000 0x80 0x00        0x80 0x00        0x80 0x00>;
+            interrupts = <0 35 4 0>; 
+            bus-range = <0x00 0xff>;
+        };
+    };   
+};
+
+

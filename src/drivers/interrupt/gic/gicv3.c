@@ -16,6 +16,7 @@
 #include <kernel/critical.h>
 #include <kernel/irq.h>
 #include <util/field.h>
+#include <kernel/dt/dt.h>
 
 #include "gicv3.h"
 
@@ -217,5 +218,38 @@ void gicv3_init_el3(void) {
 
 IRQCTRL_DEF(gicv3, gic_irqctrl_init);
 
-PERIPH_MEMORY_DEFINE(gicd, GICD_BASE, 0x10000);
-PERIPH_MEMORY_DEFINE(gicr, GICR_BASE, 0x20000);
+PERIPH_MEMORY_DEFINE(gicd, 0, 0);
+PERIPH_MEMORY_DEFINE(gicr, 0, 0);
+
+
+int gicv3_dt_config_init(void){
+   
+    struct device_node *np;
+    uintptr_t gicd_base,gicr_base;
+    uintptr_t gicd_len,gicr_len;
+     
+    np=of_find_compatible_node(NULL, NULL,"arm,gic-v3");
+    if(!np){
+        return -1;
+    }
+
+    if(of_property_read_reg(np, 0, &gicd_base, &gicd_len)){
+        return -1;
+    }
+
+    if(of_property_read_reg(np, 1, &gicr_base, &gicr_len)){
+        return -1;
+    }
+    
+	gic.gicd_base = gicd_base;
+	gic.gicr_base = gicr_base;
+	
+    gicd_mem.start = gicd_base;
+	gicd_mem.len = 0x10000;
+	gicr_mem.start = gicr_base;
+	gicr_mem.len = 0x20000;
+
+    return 0;
+}
+
+DT_CONFIG_INIT("gicv3",gicv3_dt_config_init);
